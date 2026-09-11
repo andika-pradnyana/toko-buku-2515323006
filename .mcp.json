@@ -1,0 +1,12 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "wsl.exe",
+            "args": [
+                "/usr/bin/php8.5",
+                "/home/andika/code/workspace/training/laravel/toko-buku-2515323006/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}
