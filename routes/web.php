@@ -12,3 +12,5 @@ Route::get('/buku/{id}', [\App\Http\Controllers\BookController::class, 'show']);
 Route::resource('kategori', \App\Http\Controllers\CategoryController::class)->except('show');
 
 Route::resource('penerbit', \App\Http\Controllers\PublisherController::class)->except('show');
+
+Route::resource('buku', \App\Http\Controllers\BookController::class);

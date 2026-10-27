@@ -90,6 +90,7 @@ class CategoryController extends Controller
     {
         $kategori = Category::findOrFail($id);
 
+
         try {
             $kategori->delete();
         } catch (QueryException $e) {
