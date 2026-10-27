@@ -34,7 +34,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="4" class="text-center text-muted">Belum ada kategori.</td>
+                <td colspan="4" class="text-center text-muted">Belum ada penerbit.</td>
             </tr>
         @endforelse
         </tbody>
