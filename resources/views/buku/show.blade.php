@@ -15,6 +15,9 @@
                 <h1>{{ $buku->title }}</h1>
                 <p class="text-muted mb-1">Penulis: {{ $buku->author_name }}</p>
                 <p class="text-muted">Penerbit: {{ $buku->publisher?->name ?? 'belum diisi' }}</p>
+                @if ($buku->published_year)
+                    <p class="text-muted">Tahun Terbit: {{ $buku->published_year }}</p>
+                @endif
                 <p class="harga-buku fs-4">Rp{{ number_format($buku->price, 0, ',', '.') }}</p>
                 <a href="{{ url('/buku') }}" class="btn btn-outline-secondary">&larr; Kembali ke daftar buku</a>
                 <a href="{{ route('buku.edit', $buku->id) }}" class="btn btn-outline-primary">Ubah</a>

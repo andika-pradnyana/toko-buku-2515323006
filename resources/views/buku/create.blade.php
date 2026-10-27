@@ -71,6 +71,16 @@
         </div>
 
         <div class="mb-3">
+            <label for="published_year" class="form-label">Tahun Terbit (opsional)</label>
+            <input type="text" id="published_year" name="published_year"
+                   class="form-control @error('published_year') is-invalid @enderror"
+                   value="{{ old('published_year') }}">
+            @error('published_year')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
             <label for="cover" class="form-label">Sampul (opsional, JPG/PNG, maksimal 2 MB)</label>
             <input type="file" id="cover" name="cover"
                    class="form-control @error('cover') is-invalid @enderror">

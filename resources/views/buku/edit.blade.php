@@ -72,6 +72,16 @@
         </div>
 
         <div class="mb-3">
+            <label for="published_year" class="form-label">Tahun Terbit (opsional)</label>
+            <input type="text" id="published_year" name="published_year"
+                   class="form-control @error('published_year') is-invalid @enderror"
+                   value="{{ old('published_year', $buku->published_year) }}">
+            @error('published_year')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
             <label for="cover" class="form-label">Sampul (JPG/PNG, maksimal 2 MB)</label>
             <div class="mb-2">
                 <img src="{{ $buku->cover_url }}" alt="Sampul saat ini" style="max-height: 160px;" class="rounded border">
