@@ -10,16 +10,48 @@ use Illuminate\Http\Request;
 class BookController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('buku.index', ['daftarBuku' => Book::with('category', 'publisher')->latest('id')->get()]);
+        $kataKunci = $request->query('q');
+        $kategoriId = $request->query('kategori');
+
+        $daftarBuku = Book::with(['category', 'publisher'])
+            ->when($kataKunci, function ($query, $kataKunci) {
+                $query->where(function ($query) use ($kataKunci) {
+                    $query->where('title', 'like', '%' . $kataKunci . '%')
+                        ->orWhere('author_name', 'like', '%' . $kataKunci . '%');
+                });
+            })
+            ->when($kategoriId, function ($query, $kategoriId) {
+                $query->where('category_id', $kategoriId);
+            })
+            ->latest('id')
+            ->paginate(3)
+            ->withQueryString();
+
+        return view('buku.index', [
+            'daftarBuku' => $daftarBuku,
+            'daftarKategori' => Category::orderBy('name')->get(),
+            'kataKunci' => $kataKunci,
+            'kategoriId' => $kategoriId,
+        ]);
+
     }
 
     public function show($id)
     {
-       $buku = Book::with('category', 'publisher')->find($id);
+        $buku = Book::with(['category', 'publisher'])->find($id);
 
-       return view('buku.show', ['buku' => $buku, 'id' => $id]);
+        $bukuSerupa = $buku
+            ? $buku->category->books()->whereKeyNot($buku->id)->latest('id')->limit(3)->get()
+            : collect();
+
+        return view('buku.show', [
+            'buku' => $buku,
+            'id' => $id,
+            'bukuSerupa' => $bukuSerupa,
+        ]);
+
     }
 
     public function create()
@@ -51,8 +83,9 @@ class BookController extends Controller
             'author_name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'publisher_id' => 'required|exists:publishers,id',
-            'price' => 'required|numeric|min:0|max:99999999',
+            'price' => 'required|integer|min:0|max:99999999',
             'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'stock' => 'required|integer|min:0|max:100000',
             'published_year' => 'nullable|integer|min:1900|max:2100'
         ];
     }
@@ -68,10 +101,14 @@ class BookController extends Controller
             'category_id.exists' => 'Kategori yang dipilih tidak ditemukan.',
             'publisher_id.required' => 'Pilih salah satu penerbit.',
             'publisher_id.exists' => 'Penerbit yang dipilih tidak ditemukan.',
+            'price.integer' => 'Harga harus berupa bilangan bulat tanpa titik atau koma (contoh: 85000).',
             'price.required' => 'Harga wajib diisi.',
-            'price.numeric' => 'Harga harus berupa angka.',
             'price.min' => 'Harga tidak boleh negatif.',
             'price.max' => 'Harga terlalu besar (maksimal 99.999.999).',
+            'stock.required' => 'Stok wajib diisi (isi 0 bila habis).',
+            'stock.integer' => 'Stok harus berupa bilangan bulat.',
+            'stock.min' => 'Stok tidak boleh negatif.',
+            'stock.max' => 'Stok terlalu besar (maksimal 100.000).',
             'cover.image' => 'Sampul harus berupa gambar.',
             'cover.mimes' => 'Sampul harus berformat JPG atau PNG.',
             'cover.max' => 'Ukuran sampul maksimal 2 MB.',

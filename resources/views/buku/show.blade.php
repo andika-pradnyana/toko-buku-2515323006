@@ -18,6 +18,12 @@
                 @if ($buku->published_year)
                     <p class="text-muted">Tahun Terbit: {{ $buku->published_year }}</p>
                 @endif
+                @if ($buku->stock > 0)
+                    <p class="mb-3">Stok: {{ $buku->stock }}</p>
+                @else
+                    <p class="mb-3"><span class="badge bg-danger">Stok habis</span></p>
+                @endif
+
                 <p class="harga-buku fs-4">Rp{{ number_format($buku->price, 0, ',', '.') }}</p>
                 <a href="{{ url('/buku') }}" class="btn btn-outline-secondary">&larr; Kembali ke daftar buku</a>
                 <a href="{{ route('buku.edit', $buku->id) }}" class="btn btn-outline-primary">Ubah</a>
@@ -29,6 +35,18 @@
                 </form>
             </div>
         </div>
+        @if ($bukuSerupa->isNotEmpty())
+            <h2 class="h5 mt-5">Buku lain di kategori {{ $buku->category->name }}</h2>
+            <ul class="list-unstyled">
+                @foreach ($bukuSerupa as $serupa)
+                    <li>
+                        <a href="{{ route('buku.show', $serupa->id) }}">{{ $serupa->title }}</a>
+                        <span class="text-muted">— {{ $serupa->author_name }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+
     @else
         <div class="alert alert-warning">
             <h1 class="h4">Buku tidak ditemukan</h1>

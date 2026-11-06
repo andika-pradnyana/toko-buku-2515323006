@@ -66,7 +66,18 @@
             <input type="text" id="price" name="price"
                    class="form-control @error('price') is-invalid @enderror"
                    value="{{ old('price', (int) $buku->price) }}">
+            <div class="form-text">Ketik angka saja, tanpa titik atau koma (contoh: 85000).</div>
             @error('price')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="stock" class="form-label">Stok</label>
+            <input type="text" id="stock" name="stock"
+                   class="form-control @error('stock') is-invalid @enderror"
+                   value="{{ old('stock', $buku->stock) }}">
+            @error('stock')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Book extends Model
 {
-    protected $fillable = ["category_id", "publisher_id", "title", "author_name", "price", "cover", "published_year"];
+    protected $fillable = ["category_id", "publisher_id", "title", "author_name", "price", "cover", "published_year", "stock"];
 
     public function category(): BelongsTo {
         return $this->belongsTo(Category::class);
