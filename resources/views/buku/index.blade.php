@@ -23,6 +23,16 @@
                 @endforeach
             </select>
         </div>
+        <div class="col-md-3">
+            <select name="penerbit" class="form-select">
+                <option value="">Semua penerbit</option>
+                @foreach ($daftarPenerbit as $penerbit)
+                    <option value="{{ $penerbit->id }}" @selected($penerbitId == $penerbit->id)>
+                        {{ $penerbit->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
         <div class="col-md-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Cari</button>
             @if ($kataKunci || $kategoriId)

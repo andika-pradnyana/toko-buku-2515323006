@@ -14,6 +14,7 @@ class BookController extends Controller
     {
         $kataKunci = $request->query('q');
         $kategoriId = $request->query('kategori');
+        $penerbitId = $request->query('penerbit');
 
         $daftarBuku = Book::with(['category', 'publisher'])
             ->when($kataKunci, function ($query, $kataKunci) {
@@ -25,6 +26,9 @@ class BookController extends Controller
             ->when($kategoriId, function ($query, $kategoriId) {
                 $query->where('category_id', $kategoriId);
             })
+            ->when($penerbitId, function ($query, $penerbitId) {
+                $query->where('publisher_id', $penerbitId);
+            })
             ->latest('id')
             ->paginate(3)
             ->withQueryString();
@@ -32,8 +36,10 @@ class BookController extends Controller
         return view('buku.index', [
             'daftarBuku' => $daftarBuku,
             'daftarKategori' => Category::orderBy('name')->get(),
+            'daftarPenerbit' => Publisher::orderBy('name')->get(),
             'kataKunci' => $kataKunci,
             'kategoriId' => $kategoriId,
+            'penerbitId' => $penerbitId,
         ]);
 
     }
@@ -51,7 +57,6 @@ class BookController extends Controller
             'id' => $id,
             'bukuSerupa' => $bukuSerupa,
         ]);
-
     }
 
     public function create()
