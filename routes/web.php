@@ -11,3 +11,5 @@ Route::resource('kategori', \App\Http\Controllers\CategoryController::class)->ex
 Route::resource('penerbit', \App\Http\Controllers\PublisherController::class)->except('show');
 
 Route::resource('buku', \App\Http\Controllers\BookController::class);
+
+Route::resource('penulis', \App\Http\Controllers\AuthorController::class);
