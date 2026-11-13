@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Author;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Publisher;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class BookController extends Controller
 {
@@ -61,15 +63,26 @@ class BookController extends Controller
 
     public function create()
     {
-       return view('buku.create', ['daftarKategori' => Category::orderBy('name')->get(), 'daftarPenerbit' => Publisher::orderBy('name')->get()]);
+       return view('buku.create', ['daftarKategori' => Category::orderBy('name')->get(), 'daftarPenerbit' => Publisher::orderBy('name')->get(), 'daftarPenulis' => Author::orderBy('name')->get()]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate($this->aturan(), $this->pesan());
 
-        // Isi cover di $validated adalah objek berkas upload (atau null), bukan
-        // nama berkas untuk database -- buang dulu, lalu isi dengan hasil store().
+        if (!empty($validated['author_name'])) {
+            // Jika mengetik nama penulis baru -> buat/cari di tabel authors
+            $penulis = Author::firstOrCreate([
+                'name' => trim($validated['author_name']),
+            ]);
+            $validated['author_id']   = $penulis->id;
+            $validated['author_name'] = $penulis->name;
+        } else {
+            // Jika memilih dari dropdown -> ambil namanya dari tabel authors
+            $penulis = Author::findOrFail($validated['author_id']);
+            $validated['author_name'] = $penulis->name;
+        }
+
         unset($validated['cover']);
         if ($request->hasFile('cover')) {
             $validated['cover'] = $request->file('cover')->store('sampul', 'public');
@@ -85,23 +98,31 @@ class BookController extends Controller
     {
         return [
             'title' => 'required|string|max:255',
-            'author_name' => 'required|string|max:255',
+            /*'author_name' => Rule::exists("authors", "name"),*/
+            'author_name'    => 'nullable|required_without:author_id|string|max:255',
             'category_id' => 'required|exists:categories,id',
+            /*'author_id' => 'required|exists:authors,id',*/
+            'author_id'      => 'nullable|required_without:author_name|exists:authors,id',
             'publisher_id' => 'required|exists:publishers,id',
             'price' => 'required|integer|min:0|max:99999999',
             'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'stock' => 'required|integer|min:0|max:100000',
             'published_year' => 'nullable|integer|min:1900|max:2100'
+
         ];
     }
 
     private function pesan(): array
     {
         return [
+            'author_id.required_without'   => 'Pilih penulis dari daftar atau ketik nama penulis baru.',
+            'author_name.required_without' => 'Nama penulis wajib diisi jika tidak memilih dari daftar.',
+            'author_id.exists'             => 'Penulis yang dipilih tidak valid.',
             'title.required' => 'Judul buku wajib diisi.',
             'title.max' => 'Judul buku maksimal 255 karakter.',
             'author_name.required' => 'Nama penulis wajib diisi.',
             'author_name.max' => 'Nama penulis maksimal 255 karakter.',
+            'author_name.exists' => 'Nama penulis tidak ditemukan.',
             'category_id.required' => 'Pilih salah satu kategori.',
             'category_id.exists' => 'Kategori yang dipilih tidak ditemukan.',
             'publisher_id.required' => 'Pilih salah satu penerbit.',
@@ -130,6 +151,7 @@ class BookController extends Controller
             'buku' => Book::findOrFail($id),
             'daftarKategori' => Category::orderBy('name')->get(),
             'daftarPenerbit' => Publisher::orderBy('name')->get(),
+            'daftarPenulis' => Author::orderBy('name')->get(),
         ]);
     }
 
@@ -138,6 +160,19 @@ class BookController extends Controller
         $buku = Book::findOrFail($id);
 
         $validated = $request->validate($this->aturan(), $this->pesan());
+
+        if (!empty($validated['author_name'])) {
+            // Jika mengetik nama penulis baru -> buat/cari di tabel authors
+            $penulis = Author::firstOrCreate([
+                'name' => trim($validated['author_name']),
+            ]);
+            $validated['author_id']   = $penulis->id;
+            $validated['author_name'] = $penulis->name;
+        } else {
+            // Jika memilih dari dropdown -> ambil namanya dari tabel authors
+            $penulis = Author::findOrFail($validated['author_id']);
+            $validated['author_name'] = $penulis->name;
+        }
 
         unset($validated['cover']);
         $coverLama = null;
