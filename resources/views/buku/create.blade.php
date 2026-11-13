@@ -29,6 +29,22 @@
         </div>
 
         <div class="mb-3">
+            <label for="category_id" class="form-label">Pilih Penulis (Opsional jika mengisi penulis baru)</label>
+            <select id="author_id" name="author_id"
+                    class="form-select @error('category_id') is-invalid @enderror">
+                <option value="author_id">-- Pilih Penulis --</option>
+                @foreach ($daftarPenulis as $penulis)
+                    <option value="{{ $penulis->id }}" @selected(old('category_id') == $penulis->id)>
+                        {{ $penulis->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('category_id')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
             <label for="category_id" class="form-label">Kategori</label>
             <select id="category_id" name="category_id"
                     class="form-select @error('category_id') is-invalid @enderror">
